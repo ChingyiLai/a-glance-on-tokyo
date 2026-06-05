@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>東京住宿清單 — 2026/06/24–06/29</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", sans-serif;
+      background: #f2f1ed;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #e8442a 0%, #b82c14 100%);
+      color: white; padding: 52px 24px 40px; text-align: center;
+    }
+    .hero-emoji { font-size: 44px; margin-bottom: 12px; }
+    .hero h1 { font-size: clamp(24px, 5vw, 38px); font-weight: 800; letter-spacing: -0.5px; }
+    .hero p { margin-top: 8px; font-size: 15px; opacity: 0.88; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 20px; }
+    .tag { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; padding: 5px 16px; font-size: 13px; }
+
+    /* ── Layout ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 32px 16px 72px; }
+    .section-title { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; margin: 44px 0 16px; }
+
+    /* ── Alert box ── */
+    .alert-box {
+      background: #fff8e1; border: 1px solid #ffd54f; border-radius: 12px;
+      padding: 14px 18px; font-size: 13.5px; color: #5d4037;
+      margin-bottom: 8px; line-height: 1.7;
+    }
+    .alert-box strong { color: #bf6000; }
+
+    /* ── Top picks ── */
+    .top-picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .pick-card { background: white; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-left: 4px solid #e8442a; }
+    .pick-label { font-size: 11px; font-weight: 700; color: #e8442a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+    .pick-name { font-size: 14px; font-weight: 700; line-height: 1.3; }
+    .pick-sub { font-size: 12px; color: #777; margin-top: 3px; }
+
+    /* ── Section sub-headers ── */
+    .sub-header {
+      display: flex; align-items: center; gap: 10px;
+      margin: 28px 0 12px;
+    }
+    .sub-header-badge {
+      font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px;
+    }
+    .sub-header-badge.pass { background: #e8f5e9; color: #2e7d32; }
+    .sub-header-badge.fail { background: #ffebee; color: #c62828; }
+    .sub-header-line { flex: 1; height: 1px; background: #e8e6e0; }
+
+    /* ── Hotel card ── */
+    .hotel-card {
+      background: white; border-radius: 18px; margin-bottom: 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+      position: relative;
+    }
+    .hotel-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.12); transform: translateY(-2px); }
+    .hotel-card.failed { opacity: 0.72; }
+    .hotel-card.failed:hover { opacity: 0.88; }
+
+    /* Fail overlay banner */
+    .fail-banner {
+      background: #c62828; color: white;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 6px 16px; text-align: center;
+    }
+    .warn-banner {
+      background: #e65100; color: white;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 6px 16px; text-align: center;
+    }
+
+    .card-inner { display: flex; min-height: 200px; }
+    .card-img-wrap {
+      width: 240px; min-width: 240px; position: relative;
+      overflow: hidden; background: #e8e6e0;
+    }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+    .hotel-card:hover .card-img-wrap img { transform: scale(1.04); }
+    .rank-badge { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.55); color: white; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; backdrop-filter: blur(4px); }
+    .highlight-tag { position: absolute; bottom: 12px; left: 12px; background: #e8442a; color: white; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+    .fail-img-tag { position: absolute; bottom: 12px; left: 12px; background: #c62828; color: white; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+    .warn-img-tag { position: absolute; bottom: 12px; left: 12px; background: #e65100; color: white; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+
+    .card-content { flex: 1; padding: 20px 22px; display: flex; flex-direction: column; }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .card-name { font-size: 16px; font-weight: 800; line-height: 1.3; }
+    .card-area { font-size: 12px; color: #999; margin-top: 3px; }
+    .card-addr { font-size: 11.5px; color: #aaa; margin-top: 1px; }
+
+    .score-badge { display: flex; flex-direction: column; align-items: center; color: white; border-radius: 10px; padding: 6px 12px; min-width: 52px; text-align: center; flex-shrink: 0; }
+    .score-badge.excellent { background: #1a7a4a; }
+    .score-badge.great     { background: #1a5276; }
+    .score-num { font-size: 20px; font-weight: 800; line-height: 1; }
+    .score-lbl { font-size: 10px; opacity: 0.85; margin-top: 2px; white-space: nowrap; }
+
+    .divider { height: 1px; background: #f0eeea; margin: 14px 0; }
+
+    .card-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #bbb; }
+    .stat-value { font-size: 14px; color: #222; margin-top: 2px; }
+    .stat-value.price { font-size: 18px; font-weight: 800; color: #e8442a; }
+    .stat-per { font-size: 11px; color: #aaa; }
+    .stat-value.pass-time { color: #2e7d32; font-weight: 700; }
+    .stat-value.fail-time { color: #c62828; font-weight: 700; }
+    .stat-value.warn-time { color: #e65100; font-weight: 700; }
+    .room-pill { display: inline-block; background: #eef2ff; color: #3730a3; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+
+    .route-box { background: #f7f6f2; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #555; margin-top: 12px; line-height: 1.5; }
+    .route-box strong { color: #3730a3; }
+    .route-box.fail-route { background: #fff5f5; }
+    .route-box.fail-route strong { color: #c62828; }
+
+    .card-footer { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn-booking { display: inline-flex; align-items: center; gap: 6px; background: #003580; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; transition: background 0.15s; }
+    .btn-booking:hover { background: #00204f; }
+    .note-chip { font-size: 11px; color: #888; background: #f2f1ed; padding: 4px 10px; border-radius: 6px; }
+    .note-chip.hot { background: #fff4e0; color: #c67e00; }
+    .note-chip.danger { background: #ffebee; color: #c62828; }
+    .note-chip.warn { background: #fff3e0; color: #e65100; }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    thead tr { background: #1a1a1a; color: white; }
+    th { padding: 12px 14px; font-size: 12px; font-weight: 600; text-align: left; white-space: nowrap; }
+    td { padding: 12px 14px; font-size: 13px; border-top: 1px solid #f0eeea; vertical-align: middle; }
+    tr:hover td { background: #faf9f7; }
+    tr.row-fail td { background: #fff8f8; color: #999; }
+    tr.row-fail:hover td { background: #ffefef; }
+    tr.row-warn td { background: #fffaf5; }
+    .td-name { font-weight: 600; }
+    .td-price { font-weight: 800; color: #e8442a; }
+    .td-score { font-weight: 700; }
+    .td-score.s9 { color: #1a7a4a; }
+    .td-score.s8 { color: #1a5276; }
+    .td-time { font-weight: 700; }
+    .td-time.pass { color: #2e7d32; }
+    .td-time.fail { color: #c62828; }
+    .td-time.warn { color: #e65100; }
+    .td-status { font-size: 15px; text-align: center; }
+
+    .notes-box { background: white; border-radius: 14px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); font-size: 13.5px; color: #555; line-height: 1.9; }
+    .footer { text-align: center; padding: 32px 16px; font-size: 12px; color: #bbb; }
+
+    @media (max-width: 600px) {
+      .card-inner { flex-direction: column; }
+      .card-img-wrap { width: 100%; min-width: unset; height: 200px; }
+      .card-stats { grid-template-columns: repeat(2, 1fr); }
+      .top-picks { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-emoji">🗼</div>
+  <h1>東京住宿選擇</h1>
+  <p>2026 / 06 / 24（Wed）—— 06 / 29（Mon）· 5 晚 · 2 人</p>
+  <div class="tags">
+    <span class="tag">🛏 一張雙人大床</span>
+    <span class="tag">🚇 到濱離宮 50 分鐘內</span>
+    <span class="tag">💰 總預算 9,000 NTD 以內</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="alert-box" style="margin-top:32px;">
+    ⚠️ <strong>交通時間已用 Google Maps 實測驗證（2026/06/04）</strong><br>
+    7 間中有 <strong>4 間超過 50 分鐘</strong>，已在下方標示。符合條件的共 3 間。
+  </div>
+
+  <p class="section-title">符合條件的推薦</p>
+  <div class="top-picks">
+    <div class="pick-card">
+      <div class="pick-label">🏆 CP 值最高</div>
+      <div class="pick-name">ホテルレスポワール401</div>
+      <div class="pick-sub">TWD 4,243 · 評分 8.7 · 42–46 分</div>
+    </div>
+    <div class="pick-card">
+      <div class="pick-label">🚇 交通最近</div>
+      <div class="pick-name">&AND HOSTEL MINAMISENJU</div>
+      <div class="pick-sub">TWD 6,994 · 評分 8.1 · 42 分直達</div>
+    </div>
+    <div class="pick-card">
+      <div class="pick-label">✅ 另一選擇</div>
+      <div class="pick-name">Tokyo Guest House 2020</div>
+      <div class="pick-sub">TWD 7,425 · 評分 8.4 · 41–45 分</div>
+    </div>
+  </div>
+
+  <!-- ===== PASS SECTION ===== -->
+  <div class="sub-header">
+    <span class="sub-header-badge pass">✅ 符合 50 分鐘條件（3 間）</span>
+    <div class="sub-header-line"></div>
+  </div>
+
+  <!-- 1 ホテルレスポワール401 ✅ -->
+  <div class="hotel-card">
+    <div class="card-inner">
+      <div class="card-img-wrap">
+        <img src="https://cf.bstatic.com/xdata/images/hotel/square600/740711912.webp?k=8c374a270b94585a6fa23cc90c430972c9390e98ab5e6bbac1a54a2082042179&o=" alt="ホテルレスポワール401" loading="lazy" />
+        <div class="rank-badge">✅ 推薦</div>
+        <div class="highlight-tag">🏆 CP 值最高</div>
+      </div>
+      <div class="card-content">
+        <div class="card-top">
+          <div>
+            <div class="card-name">ホテルレスポワール401</div>
+            <div class="card-area">📍 大田区 蒲田 / 大森（Kamata–Omori, Ota Ward）</div>
+            <div class="card-addr">最寄駅：JR 蒲田駅 or 大森駅</div>
+          </div>
+          <div class="score-badge great">
+            <span class="score-num">8.7</span>
+            <span class="score-lbl">Excellent</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card-stats">
+          <div>
+            <div class="stat-label">5 晚總價</div>
+            <div class="stat-value price">TWD 4,243</div>
+            <div class="stat-per">約 849 / 晚</div>
+          </div>
+          <div>
+            <div class="stat-label">房型</div>
+            <div class="stat-value"><span class="room-pill">整套公寓</span></div>
+            <div class="stat-per">1 張雙人床 · 16 m²</div>
+          </div>
+          <div>
+            <div class="stat-label">到濱離宮</div>
+            <div class="stat-value pass-time">42–46 分 ✓</div>
+            <div class="stat-per">Google Maps 實測</div>
+          </div>
+        </div>
+        <div class="route-box">
+          🚃 京急本線（京急蒲田）→ 泉岳寺，轉 <strong>都営浅草線</strong> → 東銀座（徒步 10 分）<br>
+          或：JR 京浜東北線 → 浜松町，轉 <strong>都営大江戸線</strong> → 築地市場（45 分）
+        </div>
+        <div class="card-footer">
+          <a class="btn-booking" href="https://www.booking.com/hotel/jp/hoteruresupowaru.html" target="_blank">Booking.com で見る</a>
+          <span class="note-chip hot">預算最低 · 高評分</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 &AND HOSTEL MINAMISENJU ✅ -->
+  <div class="hotel-card">
+    <div class="card-inner">
+      <div class="card-img-wrap">
+        <img src="https://cf.bstatic.com/xdata/images/hotel/square600/653979933.webp?k=99734b43e3596bfd8d502f88ced8beef477da7ee0fa3813fa23e3cf2e0096d84&o=" alt="&AND HOSTEL MINAMISENJU" loading="lazy" />
+        <div class="rank-badge">✅ 推薦</div>
+        <div class="highlight-tag">🚇 交通最近</div>
+      </div>
+      <div class="card-content">
+        <div class="card-top">
+          <div>
+            <div class="card-name">&AND HOSTEL MINAMISENJU</div>
+            <div class="card-area">📍 荒川区 南千住（Minamisenju, Arakawa Ward）</div>
+            <div class="card-addr">〒116-0003 荒川区南千住3丁目2−9｜最寄：南千住駅（日比谷線）徒步圏</div>
+          </div>
+          <div class="score-badge great">
+            <span class="score-num">8.1</span>
+            <span class="score-lbl">Very Good</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card-stats">
+          <div>
+            <div class="stat-label">5 晚總價</div>
+            <div class="stat-value price">TWD 6,994</div>
+            <div class="stat-per">約 1,399 / 晚</div>
+          </div>
+          <div>
+            <div class="stat-label">房型</div>
+            <div class="stat-value"><span class="room-pill">Small Double</span></div>
+            <div class="stat-per">1 張雙人床</div>
+          </div>
+          <div>
+            <div class="stat-label">到濱離宮</div>
+            <div class="stat-value pass-time">42 分 ✓</div>
+            <div class="stat-per">Google Maps 實測</div>
+          </div>
+        </div>
+        <div class="route-box">
+          🚇 <strong>東京メトロ日比谷線 直通</strong> — 南千住駅 → 築地駅，全程約 22 分乗車
+        </div>
+        <div class="card-footer">
+          <a class="btn-booking" href="https://www.booking.com/hotel/jp/amp-and-hostel-minamisenju.html" target="_blank">Booking.com で見る</a>
+          <span class="note-chip hot">日比谷線直達！最近</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 Tokyo Guest House 2020 ✅ -->
+  <div class="hotel-card">
+    <div class="card-inner">
+      <div class="card-img-wrap">
+        <img src="https://cf.bstatic.com/xdata/images/hotel/square600/143929657.webp?k=d2be19b44b967f7d58670d3f6b36a875eb1d2b7156ae62e219d4985987ef68ca&o=" alt="Tokyo Guest House 2020" loading="lazy" />
+        <div class="rank-badge">✅ 推薦</div>
+      </div>
+      <div class="card-content">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Tokyo Guest House 2020</div>
+            <div class="card-area">📍 荒川区（近 赤土小学校前駅 / 西日暮里）</div>
+            <div class="card-addr">最寄：赤土小学校前駅（日暮里・舎人ライナー）</div>
+          </div>
+          <div class="score-badge great">
+            <span class="score-num">8.4</span>
+            <span class="score-lbl">Very Good</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card-stats">
+          <div>
+            <div class="stat-label">5 晚總價</div>
+            <div class="stat-value price">TWD 7,425</div>
+            <div class="stat-per">約 1,485 / 晚</div>
+          </div>
+          <div>
+            <div class="stat-label">房型</div>
+            <div class="stat-value"><span class="room-pill">Double Room</span></div>
+            <div class="stat-per">⚠ 訂房前確認床型</div>
+          </div>
+          <div>
+            <div class="stat-label">到濱離宮</div>
+            <div class="stat-value pass-time">41–45 分 ✓</div>
+            <div class="stat-per">Google Maps 實測</div>
+          </div>
+        </div>
+        <div class="route-box">
+          🚃 日暮里・舎人ライナー → 日暮里，轉 <strong>常磐線</strong> → 秋葉原 → 日比谷線 → 築地（41 分）
+        </div>
+        <div class="card-footer">
+          <a class="btn-booking" href="https://www.booking.com/hotel/jp/tokyo-sky-tree-nishinippori-mansion-niiyama.html" target="_blank">Booking.com で見る</a>
+          <span class="note-chip">訂房前確認雙人床型</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FAIL SECTION ===== -->
+  <div class="sub-header">
+    <span class="sub-header-badge fail">❌ 超過 50 分鐘（4 間）— 僅供參考</span>
+    <div class="sub-header-line"></div>
+  </div>
+
+  <!-- 2 Ustay Kitakoiwa ❌ -->
+  <div class="hotel-card failed">
+    <div class="fail-banner">❌ 實測 59 分——超過 50 分鐘條件</div>
+    <div class="card-inner">
+      <div class="card-img-wrap">
+        <img src="https://cf.bstatic.com/xdata/images/hotel/square600/715162779.webp?k=85bec7e72b7e39817bdd21dc91f8607653a103fdf3fe8f2c4cbbf07f8e8cfac4&o=" alt="Ustay Kitakoiwa" loading="lazy" />
+        <div class="rank-badge"># 2</div>
+        <div class="fail-img-tag">❌ 59 分</div>
+      </div>
+      <div class="card-content">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Ustay Kitakoiwa</div>
+            <div class="card-area">📍 江戸川区 北小岩（Kitakoiwa, Edogawa Ward）</div>
+            <div class="card-addr">最寄：JR 総武線 小岩駅 or 京成小岩駅</div>
+          </div>
+          <div class="score-badge great">
+            <span class="score-num">8.2</span>
+            <span class="score-lbl">Very Good</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card-stats">
+          <div>
+            <div class="stat-label">5 晚總價</div>
+            <div class="stat-value price">TWD 4,500</div>
+            <div class="stat-per">約 900 / 晚</div>
+          </div>
+          <div>
+            <div class="stat-label">房型</div>
+            <div class="stat-value"><span class="room-pill">Standard Double</span></div>
+            <div class="stat-per">1 張雙人床</div>
+          </div>
+          <div>
+            <div class="stat-label">到濱離宮</div>
+            <div class="stat-value fail-time">59 分 ✗</div>
+            <div class="stat-per">Google Maps 實測</div>
+          </div>
+        </div>
+        <div class="route-box fail-route">
+          🚃 京成本線（京成小岩）→ 日本橋 → <strong>不符合 50 分鐘條件</strong>，最快路線需 59 分
+        </div>
+        <div class="card-footer">
+          <a class="btn-booking" href="https://www.booking.com/hotel/jp/yoosuubei-xiao-yan-tokyo.html" target="_blank">Booking.com で見る</a>
+          <span class="note-chip danger">不符合通勤條件</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 Boa Sorte Hotel ❌ -->
+  <div class="hotel-card failed">
+    <div class="fail-banner">❌ 實測 54 分——超過 50 分鐘條件</div>
+    <div class="card-inner">
+      <div class="card-img-wrap">
+        <img src="https://cf.bstatic.com/xdata/images/hotel/square600/825516354.webp?k=fb3ace62124070090774cdd19083567215f226b8712c3a0b52f3cfa7964d145a&o=" alt="Boa Sorte Hotel AD0515" loading="lazy" />
+        <div class="rank-badge"># 3</div>
+        <div class="fail-img-tag">❌ 54 分</div>
+      </div>
+      <div class="card-content">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Boa Sorte Hotel AD0515</div>
+            <div class="card-area">📍 足立区 梅島（Umejima, Adachi Ward）</div>
+            <div class="card-addr">〒121-0816 足立区｜最寄：東武スカイツリーライン 梅島駅</div>
+          </div>
+          <div class="score-badge excellent">
+            <span class="score-num">9.1</span>
+            <span class="score-lbl">Wonderful</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card-stats">
+          <div>
+            <div class="stat-label">5 晚總價</div>
+            <div class="stat-value price">TWD 6,090</div>
+            <div class="stat-per">約 1,218 / 晚</div>
+          </div>
+          <div>
+            <div class="stat-label">房型</div>
+            <div class="stat-value"><span class="room-pill">整套 Studio</span></div>
+            <div class="stat-per">1 雙人床 · 18 m²</div>
+          </div>
+          <div>
+            <div class="stat-label">到濱離宮</div>
+            <div class="stat-value fail-time">54 分 ✗</div>
+            <div class="stat-per">Google Maps 實測</div>
+          </div>
+        </div>
+        <div class="route-box fail-route">
+          🚃 東武スカイツリーライン → 浅草，轉 <strong>都営浅草線</strong> → 東銀座・最快 54 分（不符合條件）
+        </div>
+        <div class="card-footer">
+          <a class="btn-booking" href="https://www.booking.com/hotel/jp/boa-sorte.html" target="_blank">Booking.com で見る</a>
+          <span class="note-chip danger">評分 9.1 很高，但通勤超標</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 ANX Hostel ⚠️ -->
+  <div class="hotel-card failed">
+    <div class="warn-banner">⚠️ 從西新井駅出發恰好 50 分——飯店步行距離需額外加算</div>
+    <div class="card-inner">
+      <div class="card-img-wrap">
+        <img src="https://cf.bstatic.com/xdata/images/hotel/square600/530108541.webp?k=0d10de51ce24d9654181923e9b993e3d5ca577b846792ff95c5577bffb7eefcb&o=" alt="ANX Hostel" loading="lazy" />
+        <div class="rank-badge"># 4</div>
+        <div class="warn-img-tag">⚠️ 邊界</div>
+      </div>
+      <div class="card-content">
+        <div class="card-top">
+          <div>
+            <div class="card-name">ANX Hostel-AD0080</div>
+            <div class="card-area">📍 足立区 西新井 / 梅島（Adachi Ward）</div>
+            <div class="card-addr">最寄：東武スカイツリーライン 梅島駅（步行数分）</div>
+          </div>
+          <div class="score-badge great">
+            <span class="score-num">8.6</span>
+            <span class="score-lbl">Excellent</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card-stats">
+          <div>
+            <div class="stat-label">5 晚總價</div>
+            <div class="stat-value price">TWD 6,581</div>
+            <div class="stat-per">約 1,316 / 晚</div>
+          </div>
+          <div>
+            <div class="stat-label">房型</div>
+            <div class="stat-value"><span class="room-pill">Double Room</span></div>
+            <div class="stat-per">1 張雙人床</div>
+          </div>
+          <div>
+            <div class="stat-label">到濱離宮</div>
+            <div class="stat-value warn-time">~50–55 分 ⚠</div>
+            <div class="stat-per">西新井駅基準 50 分</div>
+          </div>
+        </div>
+        <div class="route-box">
+          🚃 東武スカイツリーライン（西新井駅）→ 浅草，轉 <strong>都営浅草線</strong> → 東銀座・50 分<br>
+          ⚠ 飯店到車站需步行，門到門估計 55 分以上
+        </div>
+        <div class="card-footer">
+          <a class="btn-booking" href="https://www.booking.com/hotel/jp/anx-hostel.html" target="_blank">Booking.com で見る</a>
+          <span class="note-chip warn">邊界值，建議用 Google Maps 確認門到門時間</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Mi-Hotel Komagome ❌ -->
+  <div class="hotel-card failed">
+    <div class="fail-banner">❌ 實測 54 分——超過 50 分鐘條件</div>
+    <div class="card-inner">
+      <div class="card-img-wrap">
+        <img src="https://cf.bstatic.com/xdata/images/hotel/square600/655983486.webp?k=3ac731500a76ce927cd0ffe87403458e66b6f9ca1eef62714a80b41329beb810&o=" alt="Mi-Hotel Komagome" loading="lazy" />
+        <div class="rank-badge"># 5</div>
+        <div class="fail-img-tag">❌ 54 分</div>
+      </div>
+      <div class="card-content">
+        <div class="card-top">
+          <div>
+            <div class="card-name">Mi-Hotel Komagome 駒込</div>
+            <div class="card-area">📍 豊島区 駒込（Komagome, Toshima Ward）</div>
+            <div class="card-addr">〒170-0003 豊島区駒込7-17-10｜最寄：JR 駒込駅（徒步約 15 分）</div>
+          </div>
+          <div class="score-badge great">
+            <span class="score-num">8.7</span>
+            <span class="score-lbl">Excellent</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="card-stats">
+          <div>
+            <div class="stat-label">5 晚總價</div>
+            <div class="stat-value price">TWD 6,769</div>
+            <div class="stat-per">約 1,354 / 晚</div>
+          </div>
+          <div>
+            <div class="stat-label">房型</div>
+            <div class="stat-value"><span class="room-pill">Triple Room</span></div>
+            <div class="stat-per">1 雙人床 + 沙發床</div>
+          </div>
+          <div>
+            <div class="stat-label">到濱離宮</div>
+            <div class="stat-value fail-time">54 分 ✗</div>
+            <div class="stat-per">Google Maps 實測</div>
+          </div>
+        </div>
+        <div class="route-box fail-route">
+          🚃 JR 山手線（駒込駅）→ 上野 → 日比谷線 → 築地・<strong>門到門 54 分</strong>（飯店距站步行約 15 分が影響）
+        </div>
+        <div class="card-footer">
+          <a class="btn-booking" href="https://www.booking.com/hotel/jp/mi-komagome.html" target="_blank">Booking.com で見る</a>
+          <span class="note-chip danger">評分 8.7 高，但通勤超標</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Table ── -->
+  <p class="section-title">全部比較（含實測時間）</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>符合</th><th>飯店名稱</th><th>5 晚總價</th><th>每晚</th><th>評分</th><th>實測通勤時間</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-status">✅</td>
+          <td class="td-name">ホテルレスポワール401</td>
+          <td class="td-price">TWD 4,243</td><td>849</td>
+          <td class="td-score s8">8.7</td>
+          <td class="td-time pass">42–46 分</td>
+        </tr>
+        <tr>
+          <td class="td-status">✅</td>
+          <td class="td-name">&AND HOSTEL MINAMISENJU</td>
+          <td class="td-price">TWD 6,994</td><td>1,399</td>
+          <td class="td-score s8">8.1</td>
+          <td class="td-time pass">42 分 🚇</td>
+        </tr>
+        <tr>
+          <td class="td-status">✅</td>
+          <td class="td-name">Tokyo Guest House 2020</td>
+          <td class="td-price">TWD 7,425</td><td>1,485</td>
+          <td class="td-score s8">8.4</td>
+          <td class="td-time pass">41–45 分</td>
+        </tr>
+        <tr class="row-fail">
+          <td class="td-status">❌</td>
+          <td class="td-name">Ustay Kitakoiwa</td>
+          <td class="td-price">TWD 4,500</td><td>900</td>
+          <td class="td-score s8">8.2</td>
+          <td class="td-time fail">59 分</td>
+        </tr>
+        <tr class="row-fail">
+          <td class="td-status">❌</td>
+          <td class="td-name">Boa Sorte Hotel AD0515</td>
+          <td class="td-price">TWD 6,090</td><td>1,218</td>
+          <td class="td-score s9">9.1</td>
+          <td class="td-time fail">54 分</td>
+        </tr>
+        <tr class="row-warn">
+          <td class="td-status">⚠️</td>
+          <td class="td-name">ANX Hostel-AD0080</td>
+          <td class="td-price">TWD 6,581</td><td>1,316</td>
+          <td class="td-score s8">8.6</td>
+          <td class="td-time warn">~50–55 分</td>
+        </tr>
+        <tr class="row-fail">
+          <td class="td-status">❌</td>
+          <td class="td-name">Mi-Hotel Komagome</td>
+          <td class="td-price">TWD 6,769</td><td>1,354</td>
+          <td class="td-score s8">8.7</td>
+          <td class="td-time fail">54 分</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="section-title">注意事項</p>
+  <div class="notes-box">
+    <p>• 通勤時間為 <strong>Google Maps 實測（2026/06/04 晚間）</strong>，包含步行 + 等車 + 乘車，為門到門時間</p>
+    <p>• 目的地：<strong>〒104-0045 東京都中央区築地5丁目6-10</strong>（濱離宮公園側）</p>
+    <p>• 日比谷線可直達築地駅；都営浅草線可達東銀座（徒歩 10 分至目的地）</p>
+    <p>• 所有價格為 <strong>2 人 5 晚含稅</strong>（Booking.com 擷取於 2026/06/04）</p>
+    <p>• 6 月底為梅雨季尾聲，建議攜帶摺疊傘</p>
+  </div>
+
+</div>
+
+<div class="footer">
+  整理於 2026/06/04 · 通勤時間已 Google Maps 實測 · 匯率 1 NTD ≈ 5.08 JPY
+</div>
+
+</body>
+</html>
